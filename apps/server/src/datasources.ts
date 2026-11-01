@@ -11,7 +11,7 @@ import { SqlConnectionRegistry, SqlDataSource, connectionsFromEnv } from "@repor
 export function createDefaultDataSourceRegistry(): DataSourceRegistry {
   const registry = new DataSourceRegistry();
   registry.register(new InlineDataSource());
-  registry.register(new RestDataSource({ secrets: secretsFromEnv(), allowedHosts: restAllowedHosts() }));
+  registry.register(new RestDataSource({ secrets: secretsFromEnv(), allowedHosts: restAllowedHosts(), maxResponseBytes: restMaxResponseBytes() }));
   // File-based JSON datasets are off unless the operator names a directory they may read from (JSON_DATA_ROOT).
   if (process.env.JSON_DATA_ROOT) registry.register(new JsonDataSource({ rootDir: process.env.JSON_DATA_ROOT }));
   // Databases: REPORT_SQL_<NAME>=postgres://user:pass@host/db  (or mysql://). Reports reference the connection id only, never credentials.
@@ -41,4 +41,16 @@ export function secretsFromEnv(env: NodeJS.ProcessEnv = process.env): Record<str
 function restAllowedHosts(env: NodeJS.ProcessEnv = process.env): string[] | undefined {
   const list = (env.REPORT_REST_ALLOWED_HOSTS ?? "").split(",").map((h) => h.trim()).filter(Boolean);
   return list.length ? list : undefined;
+}
+
+/** REPORT_REST_MAX_RESPONSE_BYTES sets the largest REST response body a dataset may read. Unset = the data source's 10 MB default.
+ * A value that is not a positive whole number stops start-up rather than silently falling back. */
+export function restMaxResponseBytes(env: NodeJS.ProcessEnv = process.env): number | undefined {
+  const raw = env.REPORT_REST_MAX_RESPONSE_BYTES?.trim();
+  if (!raw) return undefined;
+  const bytes = Number(raw);
+  if (!/^\d+$/.test(raw) || !Number.isSafeInteger(bytes) || bytes <= 0) {
+    throw new Error(`REPORT_REST_MAX_RESPONSE_BYTES must be a positive whole number of bytes (for example 52428800 for 50 MB); got "${raw}".`);
+  }
+  return bytes;
 }

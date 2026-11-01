@@ -29,6 +29,7 @@ Run **`pnpm doctor`** first — it checks Node, pnpm, fonts, install and build s
 **REST dataset blocked.** "private/internal address" ⇒ SSRF protection. Add the host to `REPORT_REST_ALLOWED_HOSTS` (that switches to strict allow-list mode: *only* listed hosts).
 **Database connection not listed.** Set `REPORT_SQL_<NAME>=postgres://…` on the **server** and restart; the designer shows the ids.
 **Unknown secret "X".** Set `REPORT_SECRET_X` on the server.
+**"REST response exceeded the maximum allowed size".** The API returned more than `REPORT_REST_MAX_RESPONSE_BYTES` (10 MB by default). Filter the request with parameters, or raise the limit on the server and restart.
 **Dataset timed out / too many rows.** Filter in SQL, add parameters, or use async jobs and CSV for very large exports.
 
 ## FAQ

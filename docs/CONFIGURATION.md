@@ -32,6 +32,7 @@ REPORT_SQL_ERP=mysql://reporting_ro:secret@erp.internal/erp?ssl=true
 |---|---|
 | `REPORT_SECRET_<NAME>` | A secret usable in dataset URLs, headers, query or body as `{{secrets.NAME}}`. The designer sees only the **names** |
 | `REPORT_REST_ALLOWED_HOSTS` | Strict allow-list of hostnames REST datasets may call. **Unset:** any *public* host is allowed and private/loopback/link-local/cloud-metadata addresses are always blocked (SSRF protection). **Set:** *only* these hosts are allowed — and this is how you deliberately permit an internal API (e.g. `api.hospital.internal`) |
+| `REPORT_REST_MAX_RESPONSE_BYTES` | Largest REST response body one dataset may read, in bytes. **Default:** 10 MB (`10485760`). Raise it for APIs that return large result sets (e.g. `52428800` for 50 MB); the whole body is held in memory while a report renders. Anything other than a positive whole number stops the server at start-up |
 
 Example dataset header: `{ "Authorization": "Bearer {{secrets.BILLING_TOKEN}}" }` with `REPORT_SECRET_BILLING_TOKEN=…` on the server.
 

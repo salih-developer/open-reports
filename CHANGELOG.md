@@ -10,6 +10,8 @@ All notable changes. Format based on [Keep a Changelog](https://keepachangelog.c
 - Import FastReport: `.frx` designs become drafts (`@reporting/frx-import`). Bands, groups, totals, formats, highlights, lines, barcodes and matrices convert. Scripts never run; what they did is listed for review. See [FastReport migration](docs/FASTREPORT_MIGRATION.md).
 ### Engine
 - Page totals: page headers, footers and backgrounds read `page.rows` (the records printed on the page), `page.start.<variable>` (carried forward from earlier pages, *devreden*) and `page.end.<variable>` (carried to the next page, *nakli yekûn*). `scope: "page"` variables are now computed per page instead of warning `PAGE_VARIABLES_REQUIRE_LAYOUT`.
+### Server
+- `REPORT_REST_MAX_RESPONSE_BYTES` sets the REST dataset response cap (default stays 10 MB). An invalid value stops start-up.
 ### Schema
 - `migration.sourceFormat` accepts `"frx"` and `migration.format` accepts `"fastreport"`.
 ### Fixed

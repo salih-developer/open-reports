@@ -3,6 +3,7 @@ import os from "node:os";
 import fs from "node:fs";
 import path from "node:path";
 import { buildApp } from "../src/app.js";
+import { restMaxResponseBytes } from "../src/datasources.js";
 import type { FastifyInstance } from "fastify";
 
 let app: FastifyInstance;
@@ -136,6 +137,14 @@ describe("abuse limits", () => {
     const res = await render(huge, "html");
     expect(res.statusCode).toBeGreaterThanOrEqual(400);
     expect(res.statusCode).toBeLessThan(500);
+  });
+
+  it("the REST response cap keeps its default and only accepts a positive whole number of bytes", () => {
+    expect(restMaxResponseBytes({})).toBeUndefined();
+    expect(restMaxResponseBytes({ REPORT_REST_MAX_RESPONSE_BYTES: " 52428800 " })).toBe(52428800);
+    for (const bad of ["0", "-1", "50MB", "1e9", "1.5", "Infinity", "99999999999999999999"]) {
+      expect(() => restMaxResponseBytes({ REPORT_REST_MAX_RESPONSE_BYTES: bad })).toThrow(/REPORT_REST_MAX_RESPONSE_BYTES/);
+    }
   });
 
   it("prototype-pollution keys in report data do not poison later renders", async () => {
