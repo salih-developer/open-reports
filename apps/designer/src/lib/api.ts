@@ -191,7 +191,7 @@ export const api = {
     const dependencies = subreports ?? (report && typeof report === "object" ? subreportSources(report as Doc) : {});
     return (await request("/api/v1/analyze", { method: "POST", body: JSON.stringify({ report, parameters, ...(Object.keys(dependencies).length ? { subreports: dependencies } : {}), includeLayout: true }) })).json();
   },
-  async testDataset(dataset: unknown, parameters: Record<string, unknown> = {}): Promise<{ ok: boolean; issues: { message: string }[]; rowCount: number; durationMs?: number; value: unknown }> {
-    return (await request("/api/v1/datasets/test", { method: "POST", body: JSON.stringify({ dataset, parameters }) })).json();
+  async testDataset(dataset: unknown, parameters: Record<string, unknown> = {}, maxRows?: number): Promise<{ ok: boolean; issues: { message: string }[]; rowCount: number; durationMs?: number; value: unknown }> {
+    return (await request("/api/v1/datasets/test", { method: "POST", body: JSON.stringify({ dataset, parameters, maxRows }) })).json();
   },
 };

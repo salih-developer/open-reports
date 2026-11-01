@@ -173,6 +173,7 @@ interface State {
   save(): Promise<void>;
   publish(notes: string): Promise<boolean>;
   openTemplate(id: string): Promise<void>;
+  loadLiveSamples(): Promise<void>;
   openCode(id: string): void;
   groupSelected(): void;
   ungroupSelected(): void;
@@ -242,6 +243,8 @@ export function resolveReplaceReport(replace: boolean): void {
 
 const DRAFT_KEY = "designer.draft";
 const CLIP_KEY = "designer.clipboard";
+/** Rows fetched for a live sample when a stored template opens (the server caps dataset tests at 500). */
+const LIVE_SAMPLE_ROWS = 500;
 
 function saveClipboard(comps: Comp[]) {
   try {
@@ -639,10 +642,28 @@ export const useStore = create<State>((set, get) => ({
         const version = await api.getVersion(id, tpl.currentVersion);
         get().loadDoc(version.definition, { id: tpl.id, version: tpl.currentVersion, status: version.status, dirty: false });
         set({ dialog: null });
+        await get().loadLiveSamples();
       } catch (e) {
         get().toast((e as Error).message, "error");
       }
     });
+  },
+
+  // A stored template usually reads REST/SQL data, and without a sample its canvas and preview are empty.
+  // Fetch a capped sample through the server once; the Data tab can still replace or clear it.
+  async loadLiveSamples() {
+    const templateId = get().meta.id;
+    const remote = (get().doc.datasets ?? []).filter((ds: any) => ds.source !== "inline" && !(ds.id in get().sample));
+    for (const ds of remote) {
+      try {
+        const res = await api.testDataset(ds, get().parameters, LIVE_SAMPLE_ROWS);
+        if (get().meta.id !== templateId) return; // another report was opened meanwhile
+        if (res.ok) get().setSample(ds.id, res.value);
+        else get().toast(`Dataset "${ds.id}" could not load live data: ${res.issues.map((i) => i.message).join("; ")}`, "error");
+      } catch (e) {
+        get().toast(`Dataset "${ds.id}" could not load live data: ${(e as Error).message}`, "error");
+      }
+    }
   },
 
   openCode(id) {
