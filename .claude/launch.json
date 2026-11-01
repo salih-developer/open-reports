@@ -23,6 +23,12 @@
         "set PATH=C:\\Users\\BTECH\\.node22;%PATH%&& set PORT=4000&& node --env-file=.env scripts/dev.mjs"
       ],
       "port": 3000
+    },
+    {
+      "name": "aspnet-host",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "apps/host", "--launch-profile", "http"],
+      "port": 5300
     }
   ]
 }

@@ -11,6 +11,7 @@ All notable changes. Format based on [Keep a Changelog](https://keepachangelog.c
 ### Engine
 - Page totals: page headers, footers and backgrounds read `page.rows` (the records printed on the page), `page.start.<variable>` (carried forward from earlier pages, *devreden*) and `page.end.<variable>` (carried to the next page, *nakli yekûn*). `scope: "page"` variables are now computed per page instead of warning `PAGE_VARIABLES_REQUIRE_LAYOUT`.
 ### Server
+- ASP.NET Core host (`OpenReports.sln`, `apps/host`): opens the designer as an SPA in Visual Studio. SpaProxy starts the API and the Vite server in development; a published host serves the designer from `wwwroot` and forwards the API to the Node server with YARP. See [ASP.NET Core host](docs/ASPNET_HOST.md).
 - `REPORT_REST_MAX_RESPONSE_BYTES` sets the REST dataset response cap (default stays 10 MB). An invalid value stops start-up.
 ### Schema
 - `migration.sourceFormat` accepts `"frx"` and `migration.format` accepts `"fastreport"`.

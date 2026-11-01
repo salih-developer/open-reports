@@ -37,6 +37,8 @@ Nothing to install: open it in **GitHub Codespaces** (button above; the app open
 
 No Docker? Node 22 and `pnpm` work too: `pnpm install && pnpm doctor && pnpm build:all && pnpm start` (details in [Getting started](docs/GETTING_STARTED.md)).
 
+Working in Visual Studio? Open `OpenReports.sln`: an ASP.NET Core host runs the designer as an SPA and forwards the API to the Node engine ([ASP.NET Core host](docs/ASPNET_HOST.md)).
+
 ### Pick the task you have
 
 The demo's **What can I do?** guide explains these workflows and opens the right starting point.
@@ -191,7 +193,7 @@ Data can come from inline JSON, CSV, REST APIs, PostgreSQL or MySQL. Everything 
 | | |
 |---|---|
 | **Start** | [Getting started](docs/GETTING_STARTED.md) · [User guide](docs/USER_GUIDE.md) · [Use cases](docs/USE_CASES.md) · [Migrating from JasperReports](docs/JRXML_MIGRATION.md) · [Migrating from FastReport](docs/FASTREPORT_MIGRATION.md) |
-| **Run** | [Configuration](docs/CONFIGURATION.md) · [Deployment](docs/DEPLOYMENT.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) |
+| **Run** | [Configuration](docs/CONFIGURATION.md) · [Deployment](docs/DEPLOYMENT.md) · [ASP.NET Core host](docs/ASPNET_HOST.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) |
 | **Integrate** | [Integration guide](docs/INTEGRATION_GUIDE.md) · [Embedding](docs/EMBEDDING.md) · [REST API](docs/API.md) · [Report definition](docs/REPORT_DEFINITION.md) · [AI and MCP](docs/AI_AND_MCP.md) |
 | **Extend** | [Plugins](docs/PLUGIN_DEVELOPMENT.md) · [Architecture](docs/ARCHITECTURE.md) |
 

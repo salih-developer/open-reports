@@ -10,3 +10,7 @@ test-output/
 .env.local
 data/
 .vs/
+bin/
+obj/
+*.csproj.user
+*.esproj.user

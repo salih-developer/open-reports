@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>OpenReports.Host</RootNamespace>
+
+    <!-- Development: SpaProxy runs scripts/dev-spa-proxy.mjs from the repository root, which starts the
+         reporting API (:4000) and the designer's Vite server (:3000), then sends the browser to the designer. -->
+    <SpaRoot>..\..\</SpaRoot>
+    <!-- 127.0.0.1, not localhost: Vite listens on IPv4 only, and on Windows a refused ::1 connection takes about 2 s,
+         which is longer than SpaProxy's readiness check waits, so it would keep relaunching the dev servers. -->
+    <SpaProxyServerUrl>http://127.0.0.1:3000</SpaProxyServerUrl>
+    <!-- SpaProxy splits the command from its arguments at the first space, and on Windows it looks for "<command>.cmd",
+         which node does not have, so there it goes through cmd.exe. The command is written into spa.proxy.json unescaped:
+         keep backslashes out of it. -->
+    <SpaProxyLaunchCommand>node scripts/dev-spa-proxy.mjs</SpaProxyLaunchCommand>
+    <SpaProxyLaunchCommand Condition="$([MSBuild]::IsOSPlatform('Windows'))">cmd.exe /d /c node scripts/dev-spa-proxy.mjs</SpaProxyLaunchCommand>
+
+    <!-- The designer is built by pnpm and Vite only; Visual Studio must not compile its TypeScript. -->
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.14" />
+    <PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Publishing copies the designer's build output (apps/designer/dist) into wwwroot. -->
+    <ProjectReference Include="..\designer\OpenReports.Designer.esproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

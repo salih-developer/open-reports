@@ -80,6 +80,8 @@ Dependencies point downward only: `schema → expressions → core → layout �
 
 **Server** (`apps/server/src`): `app.ts` wires routes; `render-pipeline.ts` / `renderers.ts` build a `RenderRuntime` once from the plugin registry. Templates have versions — drafts are mutable, published versions immutable. Supports inline-definition renders, stored templates, and async jobs (`jobs.ts`). OpenAPI at `/openapi.json`.
 
+**ASP.NET Core host** (`apps/host`, `OpenReports.sln`): a thin .NET 10 shell for Visual Studio, not a port of the engine. In Development, SpaProxy runs `scripts/dev-spa-proxy.mjs` (loads `.env`, uses `OPEN_REPORTS_NODE` when the default node isn't 22) and redirects to Vite; published, it serves `wwwroot` (the designer dist, copied by `apps/designer/OpenReports.Designer.esproj`) and forwards `/api`, `/health`, `/openapi.json`, `/embed`, `/mcp` to the Node API with YARP. Use `127.0.0.1`, not `localhost`, for its URLs: Vite and the API are IPv4-only and a refused `::1` costs ~2 s on Windows, which makes SpaProxy relaunch. See `docs/ASPNET_HOST.md`.
+
 **Designer** (`apps/designer/src`): runs `core` + `layout` in the browser against sample data for instant feedback, then swaps in `/api/v1/analyze` pagination measured with the server's PDF font metrics. Preview is the real server PDF. Edits are pure functions over the JSON in `model/ops.ts`; undo/redo are JSON snapshots; canvas and code editor share the zustand store (`store.ts`). Styling: every colour/size is a token in `design-tokens.css` (with dark-mode values); `styles.css` may only use tokens — `tests/unit/design-tokens.test.ts` fails on raw hex, undefined vars, missing dark values, or sub-WCAG-AA contrast.
 
 ## Contribution rules (from CONTRIBUTING.md)
