@@ -2,11 +2,12 @@
 // Open Reports server offers for download (Settings → AI tools). Users need only Node.js 18+ to run it.
 import { build } from "esbuild";
 import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 
 const { version } = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 await build({
-  entryPoints: [new URL("../src/cli.ts", import.meta.url).pathname],
-  outfile: new URL("../dist/open-reports-mcp.mjs", import.meta.url).pathname,
+  entryPoints: [fileURLToPath(new URL("../src/cli.ts", import.meta.url))],
+  outfile: fileURLToPath(new URL("../dist/open-reports-mcp.mjs", import.meta.url)),
   bundle: true,
   platform: "node",
   target: "node18",
