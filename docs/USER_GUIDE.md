@@ -19,6 +19,7 @@ If you are deciding where to start, select **What can I do?** on Home or the **?
 | Area | What it does |
 |---|---|
 | Top modes | **Design · Data · Code · Preview**. **More report actions → Split design and code** opens both editors side by side. |
+| Ribbon | Under the title bar in Design mode. **Home** formats the selection: clipboard, font, size, bold/italic/underline, colours, text alignment, borders (all, none or single sides, with width, style and colour), fill, text styles, and copy, paste or clear formatting. **Insert** adds components and report sections and opens the dataset and grouping dialogs. **Arrange** aligns, spaces, orders, groups, locks and hides elements. **View** toggles canvas aids, snapping, zoom and panels. **Collapse ribbon** (˄) leaves only the tabs; the choice is remembered. |
 | Left | **Structure** (bands, layers, lock 🔒, hide 👁) · **Data** (searchable fields and samples) · **Components** (incl. *My Components* and *Plugins*) · **Pages** (thumbnails) |
 | Canvas | The toolbar above the page switches Structure/Pages, shows pagination, and controls zoom. The page supports smart guides with distances in mm, 8 resize handles, marquee select, hold Alt/Option to move without snapping, Shift+Alt/Option-drag to duplicate, double-click to edit text, floating format bar, and right-click menu. **Canvas settings** includes zoom to selection. |
 | Right | Properties for the selection — content, typography, layout (margin, padding, gap, grow, min/max), page-break rules, Advanced (visibility conditions) |

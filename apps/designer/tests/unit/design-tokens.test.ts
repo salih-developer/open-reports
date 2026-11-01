@@ -46,7 +46,8 @@ describe("design tokens", () => {
 
   it("give every themed surface and status tone a dark-mode value", () => {
     const themed = ["--bg", "--panel", "--panel-2", "--border", "--border-strong", "--text", "--muted", "--accent", "--accent-soft", "--canvas",
-      "--ok-soft", "--ok-text", "--warn-soft", "--warn-softer", "--warn-text", "--danger-soft", "--danger-line", "--danger-text", "--translucent-panel"];
+      "--ok-soft", "--ok-text", "--warn-soft", "--warn-softer", "--warn-text", "--danger-soft", "--danger-line", "--danger-text", "--translucent-panel",
+      "--chrome", "--on-chrome", "--on-chrome-muted", "--chrome-hover", "--chrome-sunken", "--chrome-border"];
     const overridden = block(tokensCss, /:root\[data-ui-theme="dark"\]/);
     expect(themed.filter((name) => !(name in overridden))).toEqual([]);
     // Paper is printed output and must stay white in dark mode.
@@ -58,6 +59,8 @@ describe("design tokens", () => {
       ["--text", "--bg"], ["--text", "--panel"], ["--text", "--panel-2"], ["--muted", "--panel"], ["--muted", "--bg"],
       ["--ok-text", "--ok-soft"], ["--warn-text", "--warn-soft"], ["--warn-text", "--warn-softer"], ["--danger-text", "--danger-soft"],
       ["--accent", "--panel"],
+      // Title bar and ribbon tabs: text on the chrome band, and the Publish button's chrome text on its light fill.
+      ["--on-chrome", "--chrome"], ["--on-chrome-muted", "--chrome"],
     ];
     const failing = pairs.map(([fg, bg]) => [fg, bg, contrast(t[fg]!, t[bg]!)] as const).filter(([, , ratio]) => ratio < 4.5);
     expect(failing).toEqual([]);

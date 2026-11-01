@@ -78,8 +78,8 @@ test.describe("complete journey: create, bind, style, preview, save, reload, exp
     await page.getByTestId("left-tab-layers").click();
     await page.getByTestId(`layer-${first}`).click();
     await page.getByTestId("element-tab-style").click();
-    await page.getByLabel("Font size").fill("24");
-    await page.getByRole("button", { name: "Italic", exact: true }).click();
+    await page.getByTestId("properties").getByLabel("Font size").fill("24");
+    await page.getByTestId("properties").getByRole("button", { name: "Italic", exact: true }).click();
     expect((await doc(page)).sections[0].children[0].style).toMatchObject({ fontSize: 24, italic: true });
 
     // 7. preview: the real PDF renderer on the server

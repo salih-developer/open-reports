@@ -1,6 +1,9 @@
 import type { Capabilities } from "../engine";
 import { api } from "./api";
 
+/** The font families offered in the inspector and the ribbon (the bundled Noto faces). */
+export const FONT_FAMILIES = ["Noto Sans", "Noto Sans Devanagari", "Noto Sans Telugu", "Noto Sans Kannada", "Noto Sans Tamil", "Noto Sans Arabic"];
+
 const loaded = new Map<string, Promise<void>>();
 const faceStyle: Record<string, FontFaceDescriptors> = {
   regular: { weight: "400", style: "normal" },

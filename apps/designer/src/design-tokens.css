@@ -20,6 +20,14 @@
   --on-strong: #ffffff;
   --hover: var(--accent-soft);
 
+  /* Application chrome: the title bar and ribbon tab strip, a strong band of colour in both modes. */
+  --chrome: #1f4e8c;
+  --on-chrome: #ffffff;
+  --on-chrome-muted: #c9d8ee;
+  --chrome-hover: rgba(255, 255, 255, 0.14);
+  --chrome-sunken: rgba(0, 0, 0, 0.18);
+  --chrome-border: rgba(255, 255, 255, 0.24);
+
   /* Status tones: soft backgrounds with readable text, for chips, banners and badges. */
   --ok-soft: #dcfce7;
   --ok-text: #166534;
@@ -62,12 +70,12 @@
   --text-2xl: 18px;
   --text-3xl: 20px;
 
-  --radius-xs: 4px;
-  --radius: 8px;
-  --radius-sm: 6px;
-  --radius-lg: 12px;
+  --radius-xs: 3px;
+  --radius: 6px;
+  --radius-sm: 4px;
+  --radius-lg: 8px;
   --radius-pill: 999px;
-  --shadow: 0 1px 2px rgba(22, 42, 73, 0.05), 0 6px 20px rgba(22, 42, 73, 0.06);
+  --shadow: 0 1px 2px rgba(22, 42, 73, 0.06), 0 4px 14px rgba(22, 42, 73, 0.08);
   --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 24%, transparent);
   --space-1: 4px;
   --space-2: 8px;
@@ -100,6 +108,12 @@
     --danger-line: #7f2d2d;
     --danger-text: #fca5a5;
     --translucent-panel: rgba(27, 37, 50, 0.95);
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.24), 0 8px 24px rgba(0, 0, 0, 0.32);
+    --chrome: #16304f;
+    --on-chrome: #e6edf7;
+    --on-chrome-muted: #a9b8cc;
+    --chrome-hover: rgba(255, 255, 255, 0.08);
+    --chrome-sunken: rgba(0, 0, 0, 0.28);
+    --chrome-border: rgba(255, 255, 255, 0.14);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.24), 0 6px 18px rgba(0, 0, 0, 0.32);
     color-scheme: dark;
 }

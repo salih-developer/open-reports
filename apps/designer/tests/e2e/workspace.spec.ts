@@ -34,7 +34,7 @@ test.describe("workspace", () => {
     await expect(page.getByTestId("value-text")).toBeVisible();
     await page.screenshot({ path: path.join(screenshots, "72-element-content-inspector.png") });
     await page.getByTestId("element-tab-style").click();
-    await expect(page.getByLabel("Font size")).toBeVisible();
+    await expect(page.getByTestId("properties").getByLabel("Font size")).toBeVisible();
     await page.screenshot({ path: path.join(screenshots, "73-element-style-inspector.png") });
     await page.getByTestId("element-tab-layout").click();
     await expect(page.getByRole("button", { name: "Layout", exact: true })).toHaveAttribute("aria-expanded", "true");

@@ -47,14 +47,14 @@ test("build a 40 × 25 mm patient label through the UI, validate it, and preview
   await page.getByTestId("value-field").selectOption("data.patient.name");
   await placeSelected(page, 0, 0, 68, 10);
   await page.getByTestId("element-tab-style").click();
-  await page.getByLabel("Font size").fill("7");
+  await page.getByTestId("properties").getByLabel("Font size").fill("7");
 
   await page.getByTestId("palette-text").click();
   await page.getByTestId("value-mode-field").click();
   await page.getByTestId("value-field").selectOption("data.patient.uhid");
   await placeSelected(page, 0, 13, 68, 8);
   await page.getByTestId("element-tab-style").click();
-  await page.getByLabel("Font size").fill("6");
+  await page.getByTestId("properties").getByLabel("Font size").fill("6");
 
   await page.getByTestId("palette-barcode").click();
   await page.getByTestId("value-mode-field").click();

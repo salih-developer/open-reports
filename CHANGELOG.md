@@ -2,6 +2,13 @@
 
 All notable changes. Format based on [Keep a Changelog](https://keepachangelog.com); versions follow semver once 1.0 is reached (0.x may change between minors; report-definition changes bump `schemaVersion` with a migration).
 
+## [Unreleased]
+### Designer
+- Ribbon under the title bar in Design mode: Home (clipboard, font, paragraph, borders and fill, text styles, copy/paste/clear formatting), Insert (components, report sections, datasets, grouping), Arrange (align, space, order, group, lock, hide) and View (canvas aids, snapping, zoom, panels). It can be collapsed to its tabs.
+- Application chrome: a coloured title bar and ribbon tab strip in light and dark mode, with tighter corner radii across the interface.
+### Fixed
+- `pnpm dev` and the MCP bundle build now work on Windows.
+
 ## [0.2.0] — 2026-10-04
 ### Designer
 - Banded structure view with nested groups, rulers, named guides, baseline and equal-spacing snapping, Space-drag panning, adjustable major/minor grid.

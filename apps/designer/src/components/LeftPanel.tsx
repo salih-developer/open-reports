@@ -73,7 +73,7 @@ function useDismissibleDetails() {
   return ref;
 }
 
-const BAND_DESCRIPTIONS: Record<string, string> = {
+export const BAND_DESCRIPTIONS: Record<string, string> = {
   reportHeader: "Appears once at the start of the report.",
   pageHeader: "Repeats at the top of every printed page.",
   dataHeader: "Appears once before the data rows, often for column labels.",
@@ -96,7 +96,7 @@ export function insertFromPalette(item: PaletteItem) {
   s.addComponent(item.type, last, container ? "inside" : "after", item.overrides);
 }
 
-const SECTION_GROUPS: { label: string; types: readonly string[] }[] = [
+export const SECTION_GROUPS: { label: string; types: readonly string[] }[] = [
   { label: "Page layout", types: ["pageHeader", "pageFooter", "background"] },
   { label: "Report flow", types: ["reportHeader", "detail", "reportFooter", "noData"] },
   { label: "Data sections", types: ["dataHeader", "dataFooter", "groupHeader", "groupFooter", "child"] },

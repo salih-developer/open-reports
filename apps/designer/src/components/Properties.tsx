@@ -13,6 +13,7 @@ import { LinkProps } from "./LinkProps";
 import { removeHeaderColumn } from "../lib/table-header";
 import { removeBodyColumn } from "../lib/table-body";
 import { textStyleFromStyle } from "../lib/theme-edit";
+import { FONT_FAMILIES } from "../lib/fonts";
 import { FragmentProps } from "./FragmentProps";
 import { fitZoom } from "../lib/zoom";
 import { SpacingFields } from "./SpacingFields";
@@ -432,7 +433,7 @@ function Typography({ comp }: { comp: ops.Comp }) {
         <select aria-label="Font family" value={st.fontFamily ?? ""} onChange={(e) => set({ fontFamily: e.target.value || undefined })}>
           <option value="">{doc.theme?.fonts?.body ?? "Default"}</option>
           {fontTokens.map((name) => <option key={`token-${name}`} value={`$${name}`}>{`$${name} (${doc.theme?.fonts?.[name]})`}</option>)}
-          {["Noto Sans", "Noto Sans Devanagari", "Noto Sans Telugu", "Noto Sans Kannada", "Noto Sans Tamil", "Noto Sans Arabic"].map((f) => (
+          {FONT_FAMILIES.map((f) => (
             <option key={f}>{f}</option>
           ))}
         </select>

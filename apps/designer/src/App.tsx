@@ -10,6 +10,7 @@ import { DataMode } from "./components/DataMode";
 import { AiBar } from "./components/AiBar";
 import { TableDesigner } from "./components/TableDesigner";
 import { BandBar } from "./components/BandLayer";
+import { Ribbon } from "./components/Ribbon";
 import { arrayRefs, datasetFields, scalarFields } from "./lib/fields";
 import { titleCase } from "./lib/lowcode";
 import * as ops from "./model/ops";
@@ -166,7 +167,10 @@ export default function App() {
   return (
     <div className="app" data-testid="app">
       {home ? <HomeScreen /> : phone ? <MobileDesignerGate /> : <>
-      <Toolbar />
+      <div className="app-header">
+        <Toolbar />
+        {mode === "design" && !tableEditId && <Ribbon />}
+      </div>
       {mode === "design" && tableEditId ? <TableDesigner id={tableEditId} /> : <div className={`main ${showsLeft ? "has-left" : "no-left"} ${showsRight ? "has-right" : "no-right"}`} style={{ "--left-panel-width": `${leftPanelWidth}px` } as React.CSSProperties}>
         {showsLeft && <LeftPanel width={leftPanelWidth} onWidthChange={setLeftPanelWidth} />}
         <section className="center" aria-label="Workspace">
