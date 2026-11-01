@@ -22,6 +22,7 @@
     "@reporting/core": "workspace:*",
     "@reporting/embed": "workspace:*",
     "@reporting/expressions": "workspace:*",
+    "@reporting/frx-import": "workspace:*",
     "@reporting/jrxml-import": "workspace:*",
     "@reporting/layout": "workspace:*",
     "@reporting/renderer-csv": "workspace:*",

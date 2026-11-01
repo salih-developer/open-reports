@@ -74,7 +74,7 @@ definition → validate → parameters → datasets (parallel, timeout, row cap)
 - `renderer-*` — consume only the resolved tree (and paginated pages for paged formats). They never run queries or evaluate expressions, and don't depend on each other (except `renderer-pdf` → `renderer-html`).
 - `datasource-json|rest|sql` — data sources; REST has SSRF protections, SQL connections come from `REPORT_SQL_<NAME>` env vars, secrets via `{{secrets.NAME}}`.
 - `plugin-sdk` — plugins add formats, data sources, functions, `custom` components (expand into ordinary components so every renderer supports them), storage. `plugin-clinic-pack` is the sample.
-- `ai-tools` / `mcp-server` — template-editing tools shared by the designer's AI panel and the MCP server (published to npm as `open-reports-mcp`; server copies it in via `scripts/copy-mcp.mjs` and serves `/mcp`). `jrxml-import`, `embed` (web components `<open-report-viewer>`/`<open-report-designer>`), `client` (unpublished TS helper).
+- `ai-tools` / `mcp-server` — template-editing tools shared by the designer's AI panel and the MCP server (published to npm as `open-reports-mcp`; server copies it in via `scripts/copy-mcp.mjs` and serves `/mcp`). `jrxml-import` and `frx-import` (JasperReports / FastReport sources → draft definitions with a migration review list; scripts never run), `embed` (web components `<open-report-viewer>`/`<open-report-designer>`), `client` (unpublished TS helper).
 
 Dependencies point downward only: `schema → expressions → core → layout → renderers`.
 

@@ -86,9 +86,10 @@ export const fragmentDefinitionSchema = z.object({
 
 /** Durable review record for source imports. Original expressions remain in the source file. */
 export const migrationRecordSchema = z.object({
-  sourceFormat: z.literal("jrxml"),
+  sourceFormat: z.enum(["jrxml", "frx"]),
   sourceName: z.string().optional(),
-  format: z.enum(["v6-style", "v7-style"]),
+  /** JRXML element style, or "fastreport" for a FastReport .frx source. */
+  format: z.enum(["v6-style", "v7-style", "fastreport"]),
   summary: z.object({ converted: z.number().int().nonnegative(), "needs-review": z.number().int().nonnegative(), unsupported: z.number().int().nonnegative() }),
   issues: z.array(z.object({
     status: z.enum(["needs-review", "unsupported"]),

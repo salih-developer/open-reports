@@ -19,6 +19,7 @@ import { exportJrxml, downloadJrxml, downloadJrxmlPackage } from "../lib/jrxml-e
 import { COMMANDS, shortcutLabel } from "../lib/commands";
 import { importJrxml, type ImportResult } from "@reporting/jrxml-import";
 import { JrxmlFolderImport } from "./JrxmlFolderImport";
+import { importFrx, type FrxImportResult } from "@reporting/frx-import";
 import type { WordImportResult } from "../lib/docx-import";
 import { FeatureGuide } from "./FeatureGuide";
 import { LandingPage } from "./home/LandingPage";
@@ -142,6 +143,7 @@ export function Toolbar() {
               <button role="menuitem" data-testid="btn-new" onClick={() => (setMenu(null), set({ dialog: "new" }))}>New report…</button>
               <button role="menuitem" onClick={() => (setMenu(null), set({ dialog: "open" }))}>{hostManaged ? "Open report file…" : "Open…"}</button>
               <button role="menuitem" data-testid="menu-import-jrxml" onClick={() => (setMenu(null), set({ dialog: "import-jrxml" }))}>Import JRXML…</button>
+              <button role="menuitem" data-testid="menu-import-frx" onClick={() => (setMenu(null), set({ dialog: "import-frx" }))}>Import FastReport…</button>
               <button role="menuitem" data-testid="menu-import-docx" onClick={() => (setMenu(null), set({ dialog: "import-docx" }))}>Import Word document…</button>
               <button role="menuitem" data-testid="menu-duplicate" onClick={() => (setMenu(null), duplicateReport())}>Duplicate report</button>
               {!hostManaged && <button role="menuitem" onClick={() => (setMenu(null), set({ dialog: "compare", compareVersion: null }))} disabled={!meta.id}>Compare versions…</button>}
@@ -528,6 +530,10 @@ function StarterChoices({ actionsOnly = false }: { actionsOnly?: boolean }) {
           <strong>Import JRXML</strong>
           <span>Open a JasperReports source file and review conversion issues</span>
         </button>
+        <button className="starter blank" data-testid="starter-frx" onClick={() => set({ dialog: "import-frx" })}>
+          <strong>Import FastReport</strong>
+          <span>Turn .frx designs into drafts and review what their scripts did</span>
+        </button>
         <button className="starter blank" data-testid="starter-docx" onClick={() => set({ dialog: "import-docx" })}>
           <strong>Import Word document</strong>
           <span>Turn a DOCX file into an editable report draft</span>
@@ -680,6 +686,79 @@ function JrxmlImportDialog() {
     </div>}
     <div className="dialog-actions"><button className="btn" onClick={() => set({ dialog: null })}>Cancel</button><button className="btn primary" data-testid="apply-jrxml" disabled={!result?.report} onClick={apply}>Open editable draft</button></div>
     </> : <JrxmlFolderImport onBusyChange={setFolderBusy} />}
+  </Modal>;
+}
+
+function FrxImportDialog() {
+  const set = useStore((s) => s.set);
+  const [results, setResults] = useState<{ file: string; result: FrxImportResult }[]>([]);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const read = async (list?: FileList | null) => {
+    setResults([]); setError("");
+    const files = Array.from(list ?? []);
+    if (!files.length) return;
+    if (files.some((file) => !file.name.toLowerCase().endsWith(".frx"))) { setError("Choose FastReport .frx files."); return; }
+    if (files.some((file) => file.size > 10_000_000)) { setError("A file exceeds the 10 MB import limit."); return; }
+    const read = await Promise.all(files.map(async (file) => {
+      const name = file.name.replace(/\.frx$/i, "");
+      return { file: file.name, result: importFrx(await file.text(), { id: `frx-${name.toLowerCase().replace(/[^a-z0-9_-]+/g, "-")}`, name, sourceName: file.name }) };
+    }));
+    setResults(read);
+  };
+  const single = results.length === 1 ? results[0]!.result : undefined;
+  const apply = () => {
+    if (!single?.report) return;
+    requestReplaceReport(() => {
+      const state = useStore.getState();
+      state.loadDoc(single.report!);
+      state.set({ migrationIssues: single.issues, bottom: "migration", dialog: null, mode: "design" });
+      state.toast("FastReport draft imported. Review the migration list before using the output.");
+    });
+  };
+  const saveAll = async () => {
+    setSaving(true);
+    let saved = 0;
+    for (const { result } of results) {
+      const report = result.report;
+      if (!report) continue;
+      try { await api.createTemplate(report.id, report.name, report); saved++; }
+      catch {
+        try { await api.saveTemplate(report.id, report.name, report); saved++; }
+        catch (cause) { useStore.getState().toast(`${report.name}: ${(cause as Error).message}`, "error"); }
+      }
+    }
+    setSaving(false);
+    set({ dialog: "open" });
+    useStore.getState().toast(`${saved} FastReport draft${saved === 1 ? "" : "s"} saved. Open one to review its migration list.`, "success");
+  };
+  const pending = single?.issues.filter((issue) => issue.status !== "converted") ?? [];
+  return <Modal wide label="Import FastReport" closable={!saving} onClose={() => { if (!saving) set({ dialog: null }); }}>
+    <h2>Import FastReport designs</h2>
+    <p className="muted">Choose one .frx file to open it as a draft, or several to save them all as drafts. Bands, groups, totals, formats and highlights are converted. C# scripts never run; anything they did is listed for review. The rows come from your application at render time.</p>
+    <input type="file" multiple accept=".frx,application/xml,text/xml" data-testid="frx-file" aria-label="FastReport files" disabled={saving} onChange={(event) => void read(event.target.files)} />
+    {error && <p className="err" role="alert">{error}</p>}
+    {single && <div className="jrxml-review" data-testid="frx-review">
+      <p><strong>{results[0]!.file}</strong> · {single.summary.converted} converted · {single.summary["needs-review"]} need review · {single.summary.unsupported} unsupported</p>
+      <div className="jrxml-review-list">{pending.slice(0, 100).map((issue, index) => <div key={index} className="migration-row">
+        <span className={`migration-status ${issue.status}`}>{issue.status}</span>
+        <span>{issue.feature}: {issue.message}</span>
+        <span className="muted small">line {issue.line}</span>
+      </div>)}</div>
+    </div>}
+    {results.length > 1 && <div className="jrxml-review" data-testid="frx-review">
+      <div className="jrxml-review-list">{results.map(({ file, result }) => <div key={file} className="migration-row">
+        <span className={`migration-status ${result.report ? (result.summary.unsupported ? "unsupported" : result.summary["needs-review"] ? "needs-review" : "converted") : "unsupported"}`}>{result.report ? "draft" : "failed"}</span>
+        <span>{file}</span>
+        <span className="muted small">{result.summary["needs-review"]} need review · {result.summary.unsupported} unsupported</span>
+      </div>)}</div>
+    </div>}
+    <div className="dialog-actions">
+      <button className="btn" disabled={saving} onClick={() => set({ dialog: null })}>Cancel</button>
+      {results.length > 1
+        ? <button className="btn primary" data-testid="save-frx-drafts" disabled={saving || !results.some((r) => r.result.report)} onClick={() => void saveAll()}>{saving ? "Saving…" : `Save ${results.filter((r) => r.result.report).length} drafts`}</button>
+        : <button className="btn primary" data-testid="apply-frx" disabled={!single?.report} onClick={apply}>Open editable draft</button>}
+    </div>
   </Modal>;
 }
 
@@ -1063,6 +1142,7 @@ export function Dialogs() {
   if (dialog === "guide") return <GuideDialog />;
   if (dialog === "tour") return <TourDialog />;
   if (dialog === "import-jrxml") return <JrxmlImportDialog />;
+  if (dialog === "import-frx") return <FrxImportDialog />;
   if (dialog === "import-docx") return <DocxImportDialog />;
   if (dialog === "open") return <OpenDialog />;
   if (dialog === "settings") return <SettingsDialog />;

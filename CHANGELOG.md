@@ -6,6 +6,11 @@ All notable changes. Format based on [Keep a Changelog](https://keepachangelog.c
 ### Designer
 - Ribbon under the title bar in Design mode: Home (clipboard, font, paragraph, borders and fill, text styles, copy/paste/clear formatting), Insert (components, report sections, datasets, grouping), Arrange (align, space, order, group, lock, hide) and View (canvas aids, snapping, zoom, panels). It can be collapsed to its tabs.
 - Application chrome: a coloured title bar and ribbon tab strip in light and dark mode, with tighter corner radii across the interface.
+- Import FastReport: `.frx` designs become drafts (`@reporting/frx-import`). Bands, groups, totals, formats, highlights, lines, barcodes and matrices convert. Scripts never run; what they did is listed for review. See [FastReport migration](docs/FASTREPORT_MIGRATION.md).
+### Engine
+- Page totals: page headers, footers and backgrounds read `page.rows` (the records printed on the page), `page.start.<variable>` (carried forward from earlier pages, *devreden*) and `page.end.<variable>` (carried to the next page, *nakli yekûn*). `scope: "page"` variables are now computed per page instead of warning `PAGE_VARIABLES_REQUIRE_LAYOUT`.
+### Schema
+- `migration.sourceFormat` accepts `"frx"` and `migration.format` accepts `"fastreport"`.
 ### Fixed
 - `pnpm dev` and the MCP bundle build now work on Windows.
 

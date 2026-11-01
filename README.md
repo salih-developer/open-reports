@@ -61,7 +61,7 @@ The demo's **What can I do?** guide explains these workflows and opens the right
 | **Your server, your data** | Self-hosted. Database credentials stay on the server; templates only reference `{{secrets.NAME}}`. Formulas run in a sandbox, never as code. |
 | **Your app can own the templates** | Embed the designer in host mode: it loads JSON from your application and hands edits back to your save callback. Render that exact JSON through the API without storing a template in Open Reports. [Embedding](docs/EMBEDDING.md) |
 | **Reusable headers and subreports** | Attach a shared header, footer or child report from a `.json` file. The child definition travels inside the parent, so the engine renders it without template storage. |
-| **Bring in Word and JRXML** | Turn a `.docx` letterhead or form into an editable draft, or import one `.jrxml` file or a whole folder. Each importer lists what needs review; check data bindings and PDF output before production use. [Migration guide](docs/JRXML_MIGRATION.md) |
+| **Bring in Word, JRXML and FastReport** | Turn a `.docx` letterhead or form into an editable draft, import one `.jrxml` file or a whole folder, or import FastReport `.frx` designs. Each importer lists what needs review; check data bindings and PDF output before production use. [JRXML](docs/JRXML_MIGRATION.md) · [FastReport](docs/FASTREPORT_MIGRATION.md) |
 
 ## How it compares
 
@@ -190,7 +190,7 @@ Data can come from inline JSON, CSV, REST APIs, PostgreSQL or MySQL. Everything 
 
 | | |
 |---|---|
-| **Start** | [Getting started](docs/GETTING_STARTED.md) · [User guide](docs/USER_GUIDE.md) · [Use cases](docs/USE_CASES.md) · [Migrating from JasperReports](docs/JRXML_MIGRATION.md) |
+| **Start** | [Getting started](docs/GETTING_STARTED.md) · [User guide](docs/USER_GUIDE.md) · [Use cases](docs/USE_CASES.md) · [Migrating from JasperReports](docs/JRXML_MIGRATION.md) · [Migrating from FastReport](docs/FASTREPORT_MIGRATION.md) |
 | **Run** | [Configuration](docs/CONFIGURATION.md) · [Deployment](docs/DEPLOYMENT.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) |
 | **Integrate** | [Integration guide](docs/INTEGRATION_GUIDE.md) · [Embedding](docs/EMBEDDING.md) · [REST API](docs/API.md) · [Report definition](docs/REPORT_DEFINITION.md) · [AI and MCP](docs/AI_AND_MCP.md) |
 | **Extend** | [Plugins](docs/PLUGIN_DEVELOPMENT.md) · [Architecture](docs/ARCHITECTURE.md) |
@@ -201,7 +201,7 @@ The [CI workflow](.github/workflows/ci.yml) runs unit, integration, browser and 
 
 ## Status
 
-Open Reports is young (v0.x) and moving fast: expect rough edges. Not yet supported: PDF/A, digital signatures and SSRS (`.rdl`) import. Word and JRXML imports create editable drafts, not pixel-identical copies of the source. Page breaks are measured with the bundled Noto fonts, so a different font changes line breaks; label and receipt output is verified as ZPL and ESC/POS bytes rather than on every printer model. The roadmap lives on the issue tracker.
+Open Reports is young (v0.x) and moving fast: expect rough edges. Not yet supported: PDF/A, digital signatures and SSRS (`.rdl`) import. Word, JRXML and FastReport imports create editable drafts, not pixel-identical copies of the source. Page breaks are measured with the bundled Noto fonts, so a different font changes line breaks; label and receipt output is verified as ZPL and ESC/POS bytes rather than on every printer model. The roadmap lives on the issue tracker.
 
 ## Tried it? Tell us
 

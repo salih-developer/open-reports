@@ -1,0 +1,26 @@
+{
+  "name": "@reporting/frx-import",
+  "version": "0.2.0",
+  "description": "Safe FastReport .frx importer with explicit migration diagnostics",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest run",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "@reporting/expressions": "workspace:*",
+    "@reporting/schema": "workspace:*",
+    "saxes": "5.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

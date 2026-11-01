@@ -55,6 +55,9 @@ importers:
       '@reporting/expressions':
         specifier: workspace:*
         version: link:../../packages/expressions
+      '@reporting/frx-import':
+        specifier: workspace:*
+        version: link:../../packages/frx-import
       '@reporting/jrxml-import':
         specifier: workspace:*
         version: link:../../packages/jrxml-import
@@ -327,6 +330,25 @@ importers:
         version: 2.1.9(@types/node@26.6.4)
 
   packages/expressions:
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.9(@types/node@26.6.4)
+
+  packages/frx-import:
+    dependencies:
+      '@reporting/expressions':
+        specifier: workspace:*
+        version: link:../expressions
+      '@reporting/schema':
+        specifier: workspace:*
+        version: link:../schema
+      saxes:
+        specifier: 5.0.1
+        version: 5.0.1
     devDependencies:
       typescript:
         specifier: ^5.6.3
