@@ -35,6 +35,17 @@ export function evaluateRowVariables(
   return accumulator;
 }
 
+/** Page-scope variables are evaluated once per page, for page headers, footers and backgrounds, with `page.rows`
+ * (the records printed on that page) and `page.start` / `page.end` (row variables before and after them), so
+ * `sumBy(page.rows, "amount")` is a page subtotal. */
+export function computePageVariables(
+  definitions: VariableDefinition[],
+  engine: ExpressionEngine,
+  ctx: ResolveContext
+): Record<string, unknown> {
+  return evaluateAll(definitions.filter((v) => v.scope === "page"), engine, ctx);
+}
+
 /** Group-scope variables are evaluated once per group instance, with the
  * group's own rows substituted in place of the full dataset under the given
  * dataset id, so `sum(data.items)` aggregates only that group's rows. */

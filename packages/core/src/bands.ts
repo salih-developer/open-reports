@@ -6,7 +6,7 @@ import type { ExpressionEngine } from "@reporting/expressions";
 import type { ResolveContext } from "./context.js";
 import { computeGroupVariables, evaluateRowVariables } from "./variables.js";
 import { lookupDataset, resolveComponents, themeStyle, type ResolveEnv } from "./resolve-component.js";
-import type { BandMeta, ResolvedComponent } from "./resolved-report.js";
+import { PRINTED_RECORD, type BandMeta, type PrintedRecord, type ResolvedComponent } from "./resolved-report.js";
 
 export interface BandDeps {
   report: ReportDefinition;
@@ -252,7 +252,8 @@ export function expandBodyBands(deps: BandDeps): ResolvedComponent[] {
         levelRows.forEach((row, rowIndex) => {
           accumulateRowVariables(row);
           const ctx = ctxFor(row, parentGroup, parentGroup?.rows);
-          for (const d of details) out.push(...band(d, ctx, { rowIndex, level: parentGroup?.level, groupId: parentGroup?.id, groupKey: parentGroup?.key, instance: parentInstance }));
+          const record: PrintedRecord = { row, vars: { ...deps.rowVarAccumulator } };
+          for (const d of details) out.push(...band(d, ctx, { rowIndex, level: parentGroup?.level, groupId: parentGroup?.id, groupKey: parentGroup?.key, instance: parentInstance, [PRINTED_RECORD]: record }));
         });
         return;
       }

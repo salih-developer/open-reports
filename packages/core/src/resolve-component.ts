@@ -16,6 +16,7 @@ import type {
 import { aggregate } from "./aggregate.js";
 import { pivotCrosstab, type CrosstabDefinition } from "./crosstab.js";
 import { resolveLink, type ResolvedLink } from "./links.js";
+import { PRINTED_RECORD } from "./resolved-report.js";
 import type { LinkDefinition } from "@reporting/schema";
 import { combineTableSpans, repeatedValueSpans, tableCellSpanErrors, tableCellSpanGrid, type TableCellSpanDefinition } from "./table-cell-spans.js";
 import { evaluateRowVariables, computeGroupVariables } from "./variables.js";
@@ -486,7 +487,7 @@ function resolveTable(definition: Component, ctx: ResolveContext, env: ResolveEn
       if (link) links[columns[i]!.id] = link;
     });
     kept.push(row);
-    return [{ raw, formatted, style: themedRowStyle && Object.keys(themedRowStyle).length ? themedRowStyle : undefined, ...(Object.keys(cellStyles).length ? { cellStyles } : {}), ...(Object.keys(links).length ? { links } : {}) }];
+    return [{ raw, formatted, style: themedRowStyle && Object.keys(themedRowStyle).length ? themedRowStyle : undefined, ...(Object.keys(cellStyles).length ? { cellStyles } : {}), ...(Object.keys(links).length ? { links } : {}), [PRINTED_RECORD]: { row, vars: { ...env.rowVarAccumulator } } }];
   });
   rows = kept;
 

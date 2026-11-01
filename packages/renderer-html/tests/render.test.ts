@@ -288,3 +288,21 @@ describe("default text size", () => {
     expect(html.content.toString()).toMatch(/\.page \{[^}]*font-size: 13\.33px/);
   });
 });
+
+describe("carried-forward page totals", () => {
+  it("prints devreden in each page header and nakli yekûn in each footer", async () => {
+    const html = (await renderReport({
+      schemaVersion: "1.0", id: "ledger", name: "Ledger",
+      page: { size: "custom", width: 300, height: 300, unit: "pt", margin: { top: 0, right: 0, bottom: 0, left: 0 } },
+      datasets: [{ id: "d", source: "inline", query: { data: Array.from({ length: 10 }, (_, i) => ({ amount: (i + 1) * 100 })) } }],
+      variables: [{ id: "total", scope: "row", expression: "(vars.total ?? 0) + row.amount" }],
+      sections: [
+        { type: "pageHeader", height: 20, children: [{ type: "text", expression: '"Devreden " + (page.start.total ?? 0)' }] },
+        { type: "detail", dataset: "d", height: 60, children: [{ type: "text", binding: "row.amount" }] },
+        { type: "pageFooter", height: 20, children: [{ type: "text", expression: '"Nakli " + page.end.total' }] },
+      ],
+    })).content.toString();
+    // 4, 4 and 2 records per page.
+    expect([...html.matchAll(/(Devreden|Nakli) (\d+)/g)].map((m) => m[0])).toEqual(["Devreden 0", "Nakli 1000", "Devreden 1000", "Nakli 3600", "Devreden 3600", "Nakli 5500"]);
+  });
+});

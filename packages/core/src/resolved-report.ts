@@ -115,6 +115,24 @@ export interface BandMeta {
   printAtBottom?: boolean;
   /** True when this node is a copy of a group header repeated on a continuation page. */
   repeated?: boolean;
+  /** Detail bands: the record this band printed. Every band and fragment of one record shares the same object. */
+  [PRINTED_RECORD]?: PrintedRecord;
+}
+
+/**
+ * Key of the record a detail band or table row printed. A symbol, so the records stay out of JSON (the analyze
+ * response, saved layouts) while spreads and copies of a node keep them.
+ */
+export const PRINTED_RECORD: unique symbol = Symbol.for("open-reports.printed-record");
+
+/**
+ * A data record as printed, for page-level values: pagination finds the records that landed on each page and
+ * gives page bands `page.rows`, and the row variables before and after that page (`page.start`, `page.end`).
+ */
+export interface PrintedRecord {
+  row: Record<string, unknown>;
+  /** Every row variable after this record was counted. */
+  vars: Record<string, unknown>;
 }
 
 export interface ResolvedTextComponent extends ResolvedComponentBase {
@@ -205,6 +223,8 @@ export interface ResolvedTableRow {
   cellStyles?: Record<string, Record<string, unknown>>;
   /** Per-cell links from column `link`s, keyed by column id. */
   links?: Record<string, ResolvedLink>;
+  /** The record this row printed, for page-level values (see PrintedRecord). */
+  [PRINTED_RECORD]?: PrintedRecord;
   /** Set by pagination when rows were split: the source row whose zebra stripe this row uses. */
   stripeIndex?: number;
   /** Set by pagination on the continuation part of a row split across pages. */

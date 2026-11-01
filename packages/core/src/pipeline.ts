@@ -5,7 +5,7 @@ import { ExpressionEngine } from "@reporting/expressions";
 import { DataSourceRegistry } from "./datasource.js";
 import { resolveParameters, type ParameterIssue } from "./parameters.js";
 import { executeDatasets, type DatasetExecutionIssue } from "./datasets.js";
-import { computeReportVariables } from "./variables.js";
+import { computePageVariables, computeReportVariables } from "./variables.js";
 import { PAGE_BAND_TYPES } from "@reporting/schema";
 import { expandBodyBands } from "./bands.js";
 import { resolveNestedReport, type SubreportSource } from "./subreports.js";
@@ -20,7 +20,20 @@ import type { ResolveContext } from "./context.js";
  * has paginated the report once, so the main pipeline pass above resolves
  * them with `page.number`/`total` as `undefined` and the layout engine calls
  * this afterwards, once per page, with the real values. */
-export type PageSectionResolver = (section: ResolvedSection, page: { number: number; total: number }) => ResolvedComponent[];
+export type PageSectionResolver = (section: ResolvedSection, page: PageValues) => ResolvedComponent[];
+
+/**
+ * What pagination knows about one page. `rows` are the records whose detail band or table row starts on the page;
+ * `start` holds every row variable before them (the value carried forward from earlier pages) and `end` after them
+ * (the value carried to the next page). Callers that do not track records omit them.
+ */
+export interface PageValues {
+  number: number;
+  total: number;
+  rows?: Record<string, unknown>[];
+  start?: Record<string, unknown>;
+  end?: Record<string, unknown>;
+}
 
 export interface RenderPipelineOptions {
   registry: DataSourceRegistry;
@@ -50,7 +63,7 @@ export interface RenderPipelineResult {
 }
 
 /** Page facts available to postLayout rules and expressions in page headers, footers and backgrounds. */
-export function pageFacts(page: { number: number; total: number }) {
+export function pageFacts(page: PageValues) {
   return { ...page, isFirst: page.number === 1, isLast: page.number === page.total, isOdd: page.number % 2 === 1, isEven: page.number % 2 === 0 };
 }
 
@@ -122,6 +135,16 @@ export async function resolveReport(report: ReportDefinition, options: RenderPip
   const fragments = new Map<string, any[]>(report.fragments.map((f) => [f.id, f.children as any[]]));
   const warnings: ResolvedWarning[] = [...contractWarnings];
   const rowVarAccumulator: Record<string, unknown> = {};
+  // Page bands read page.rows, page.start and page.end (filled in by pagination), and page-scoped variables
+  // computed from them. Every row variable is a key of start/end, so `page.start.total ?? 0` reads before any record.
+  const rowVariableIds = report.variables.filter((v) => v.scope === "row").map((v) => v.id);
+  const noVars = () => Object.fromEntries(rowVariableIds.map((id) => [id, undefined]));
+  // Body bands have no page of their own: they read no records and no values, so `page.start.total ?? 0` is 0 there.
+  baseCtx.page = { ...baseCtx.page, rows: [], start: noVars(), end: noVars() };
+  const pageContext = (page: ResolveContext["page"]): ResolveContext => {
+    const ctx: ResolveContext = { ...baseCtx, page: { rows: [], ...page, start: { ...noVars(), ...page.start }, end: { ...noVars(), ...page.end } } };
+    return { ...ctx, vars: { ...ctx.vars, ...computePageVariables(report.variables, engine, ctx) } };
+  };
   const ruleDecisions: RuleDecision[] = [];
   const decisions = options.traceRules ? ruleDecisions : undefined;
 
@@ -176,19 +199,11 @@ export async function resolveReport(report: ReportDefinition, options: RenderPip
       sourceIndex: index,
       appliesTo: section.appliesTo,
       style: themeStyle(section.style, makeEnv(`sections[${index}]`), section.id),
-      children: pageBandChildren(index, baseCtx, makeEnv(`sections[${index}]`)),
+      children: pageBandChildren(index, pageContext(baseCtx.page), makeEnv(`sections[${index}]`)),
     });
   });
   const bodyChildren = expandBodyBands({ report, engine, baseCtx, datasets, rowVarAccumulator, makeEnv, design: options.design });
   const sections: ResolvedSection[] = [...pageSections, { type: "body", sourceIndex: -1, children: bodyChildren }];
-
-  if (report.variables.some((v) => v.scope === "page")) {
-    warnings.push({
-      code: "PAGE_VARIABLES_REQUIRE_LAYOUT",
-      path: "variables",
-      message: "Page-scoped variables (page totals, running page balances) are resolved during layout/pagination, not in this pipeline stage.",
-    });
-  }
 
   const resolved: ResolvedReport = {
     id: report.id,
@@ -223,7 +238,7 @@ export async function resolveReport(report: ReportDefinition, options: RenderPip
       subreportStack: [report.id],
       subreportResolver: (component, ctx, nestedEnv) => resolveNestedReport(component, ctx, nestedEnv, subreports),
     };
-    return pageBandChildren(section.sourceIndex, { ...baseCtx, page: pageFacts(page) }, env);
+    return pageBandChildren(section.sourceIndex, pageContext(pageFacts(page)), env);
   };
 
   return { resolved, issues: [...parameterIssues, ...datasetIssues], resolvePageSection, ruleDecisions };

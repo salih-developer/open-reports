@@ -8,7 +8,11 @@ export interface ResolveContext extends ExpressionContext {
   data: Record<string, unknown>;
   vars: Record<string, unknown>;
   report: Record<string, unknown>;
-  page: { number?: number; total?: number; isFirst?: boolean; isLast?: boolean; isOdd?: boolean; isEven?: boolean };
+  page: {
+    number?: number; total?: number; isFirst?: boolean; isLast?: boolean; isOdd?: boolean; isEven?: boolean;
+    /** Page bands only: the records printed on this page, and every row variable before and after them. */
+    rows?: Record<string, unknown>[]; start?: Record<string, unknown>; end?: Record<string, unknown>;
+  };
 }
 
 export function childContext(ctx: ResolveContext, overrides: Partial<ResolveContext>): ResolveContext {

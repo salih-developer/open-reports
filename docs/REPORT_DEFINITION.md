@@ -37,7 +37,7 @@ A band with no `height` hugs its content; `height` fixes the band's height in po
 `printAtBottom: true` anchors a band to the bottom of the page body (just above the page footer) on the page where it prints, which suits signatures and totals. The band moves as one block, and anything after it starts on a new page, so a group footer marked this way gives each group its own page. Continuous media has no page bottom, so the band prints where it falls there.
 
 ## Expressions
-Reference data as `data.<dataset>.<path>`, `params.x`, `vars.x`, `row.x` (inside tables/repeaters), `parent.x`, `page.number`, `page.total`, `report.name`. Operators: `+ - * / %`, comparison, `&& || !`, `a ? b : c`. Functions include `upper lower trim concat substring replace contains startsWith endsWith round ceil floor abs min max formatDate addDays difference now formatCurrency formatNumber formatPercent sum avg count first last sumBy avgBy minBy maxBy sumProduct`. Unknown names fail with a suggestion. No assignment, no statements, no arbitrary calls.
+Reference data as `data.<dataset>.<path>`, `params.x`, `vars.x`, `row.x` (inside tables/repeaters), `parent.x`, `page.number`, `page.total`, `page.rows`, `page.start.x`, `page.end.x` (see *Page totals*), `report.name`. Operators: `+ - * / %`, comparison, `&& || !`, `a ? b : c`. Functions include `upper lower trim concat substring replace contains startsWith endsWith round ceil floor abs min max formatDate addDays difference now formatCurrency formatNumber formatPercent sum avg count first last sumBy avgBy minBy maxBy sumProduct`. Unknown names fail with a suggestion. No assignment, no statements, no arbitrary calls.
 
 ## Components
 Common props: `id`, `name`, `width`, `height`, `x`/`y` (free position), `style`, `rules`, `visibleWhen`, `hidden`, `locked`, `keepTogether`, `keepWithNext`, `pageBreakBefore/After`, `grow`, `gap`, `alignItems`, `justifyContent`, `minWidth/maxWidth/minHeight/maxHeight`. Spacing lives in `style.margin` / `style.padding`.
@@ -115,6 +115,35 @@ Every component accepts `style`: `fontFamily`, `fontSize`, `fontWeight`, `italic
 ### Variables
 
 `variables[]` take `id`, `scope` and `expression`, and are read as `vars.<id>`. `report` variables are computed once; `group` variables once per group instance over that group's rows; `row` variables once per detail record, in print order, so they can accumulate: `"(vars.balance ?? 0) + row.amount"` is a running balance. Set `resetOn` to a group id to restart a row variable at each instance of that group (a running total per region). Row variables also accumulate over table rows.
+
+`page` variables are computed once per page for page headers, footers and backgrounds, after pagination, from the page values below.
+
+### Page totals
+
+Page headers, footers and backgrounds know which records printed on their page. A record counts on the page where its detail band or table row starts.
+
+| Value | Meaning |
+| --- | --- |
+| `page.rows` | The records printed on this page. `sumBy(page.rows, "amount")` is the page subtotal. |
+| `page.start.<id>` | Row variable `<id>` before this page's first record: the total carried forward from earlier pages (*devreden*). |
+| `page.end.<id>` | Row variable `<id>` after this page's last record: the total carried to the next page (*nakli yekûn*). |
+
+A page with no records carries the previous value through. Before the first record a variable reads as undefined, so write `page.start.total ?? 0`. Body bands have no page of their own: there `page.rows` is empty and `page.start` / `page.end` read as undefined.
+
+```json
+"variables": [
+  { "id": "debit", "scope": "row", "expression": "(vars.debit ?? 0) + row.debit" },
+  { "id": "pageDebit", "scope": "page", "expression": "sumBy(page.rows, \"debit\")" }
+],
+"sections": [
+  { "type": "pageHeader", "children": [{ "type": "text", "expression": "\"Devreden: \" + formatNumber(page.start.debit ?? 0, 2)" }] },
+  { "type": "detail", "dataset": "entries", "children": [{ "type": "text", "binding": "row.debit", "format": "number:2" }] },
+  { "type": "pageFooter", "children": [
+    { "type": "text", "expression": "\"Sayfa toplamı: \" + formatNumber(vars.pageDebit, 2)" },
+    { "type": "text", "expression": "\"Nakli yekûn: \" + formatNumber(page.end.debit ?? 0, 2)" }
+  ] }
+]
+```
 
 ## Datasets
 - `inline`: `{ "data": [...] }`

@@ -1,5 +1,5 @@
-import type { ResolvedComponent, ResolvedReport, ResolvedTableComponent, ResolvedSection } from "@reporting/core";
-import { sliceTableSpans } from "@reporting/core";
+import type { PageValues, PrintedRecord, ResolvedComponent, ResolvedReport, ResolvedTableComponent, ResolvedSection } from "@reporting/core";
+import { PRINTED_RECORD, sliceTableSpans } from "@reporting/core";
 import type { TextMeasurer } from "./measure.js";
 import { defaultTextMeasurer, ellipsizeText, wrapTextLines } from "./measure.js";
 import { resolveDimension, resolvePageGeometry, toPoints } from "./units.js";
@@ -10,9 +10,43 @@ import type { PageLayout, PaginatedReport, PaginationDecision, PositionedNode } 
 export interface PaginateOptions {
   measurer?: TextMeasurer;
   /** Re-resolves a pageHeader/pageFooter section's components for a specific
-   * page, with `page.number`/`page.total` bound to real values. If omitted, the
-   * section's already-resolved (page-number-less) content is repeated verbatim. */
-  resolvePageDependentSection?: (section: ResolvedSection, page: { number: number; total: number }) => ResolvedComponent[];
+   * page, with `page.number`/`page.total` bound to real values, plus the
+   * records printed on the page and the row variables around them. If omitted,
+   * the section's already-resolved (page-number-less) content is repeated verbatim. */
+  resolvePageDependentSection?: (section: ResolvedSection, page: PageValues) => ResolvedComponent[];
+}
+
+/**
+ * The records each page printed: a record counts on the first page where one of its detail bands or table rows
+ * starts. `start` carries the row variables of the last record on earlier pages (devreden), `end` those of the
+ * last record on this page (nakli yekûn); a page without records carries the previous value through.
+ */
+export function pageRecords(pages: PositionedNode[][]): Omit<PageValues, "number" | "total">[] {
+  const seen = new Set<PrintedRecord>();
+  let carried: Record<string, unknown> = {};
+  return pages.map((nodes) => {
+    const records: PrintedRecord[] = [];
+    const take = (record: PrintedRecord | undefined) => {
+      if (record && !seen.has(record)) {
+        seen.add(record);
+        records.push(record);
+      }
+    };
+    const visit = (node: PositionedNode) => {
+      const component = node.component as ResolvedComponent;
+      take(component.band?.[PRINTED_RECORD]);
+      if (component.type === "table") {
+        const table = component as ResolvedTableComponent;
+        const range = node.rowRange ?? { start: 0, end: table.rows.length };
+        for (const row of table.rows.slice(range.start, range.end)) take(row[PRINTED_RECORD]);
+      }
+      for (const child of node.children ?? []) visit(child);
+    };
+    nodes.forEach(visit);
+    const start = carried;
+    if (records.length) carried = records[records.length - 1]!.vars;
+    return { rows: records.map((record) => record.row), start, end: carried };
+  });
 }
 
 /** Warnings that mean a generated document may omit or misplace report data. */
@@ -119,15 +153,17 @@ function paginateFixed(report: ResolvedReport, options: PaginateOptions = {}, an
     warnings.push({ code: "PAGE_HEADER_FOOTER_TOO_LARGE", path: "page", message: "Page header/footer leave no room for content." });
   }
 
+  const records = pageRecords(run.pages);
   const pages: PageLayout[] = run.pages.map((content, i) => {
     const number = i + 1;
     const headerSection = pickMaster(headers, number, total);
     const footerSection = pickMaster(footers, number, total);
     const hh = heightOf(headerSection);
     const fh = heightOf(footerSection);
+    const values: PageValues = { number, total, ...records[i] };
 
     const resolveFor = (s: ResolvedSection | undefined) =>
-      !s ? [] : options.resolvePageDependentSection ? options.resolvePageDependentSection(s, { number, total }) : s.children;
+      !s ? [] : options.resolvePageDependentSection ? options.resolvePageDependentSection(s, values) : s.children;
 
     const header = layoutBlock(resolveFor(headerSection), geometry.contentWidth, measurer, { x: geometry.margin.left, y: geometry.margin.top }).nodes;
     const footer = layoutBlock(resolveFor(footerSection), geometry.contentWidth, measurer, {
@@ -138,7 +174,7 @@ function paginateFixed(report: ResolvedReport, options: PaginateOptions = {}, an
     const bgSection = pickMaster(backgrounds, number, total);
     const background = bgSection
       ? layoutBlock(
-          [{ type: "container", layout: "absolute", width: geometry.width, height: geometry.height, style: bgSection.style, children: options.resolvePageDependentSection ? options.resolvePageDependentSection(bgSection, { number, total }) : bgSection.children } as any],
+          [{ type: "container", layout: "absolute", width: geometry.width, height: geometry.height, style: bgSection.style, children: options.resolvePageDependentSection ? options.resolvePageDependentSection(bgSection, values) : bgSection.children } as any],
           geometry.width,
           measurer,
           { x: 0, y: 0 }
