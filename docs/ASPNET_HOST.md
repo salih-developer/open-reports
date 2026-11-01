@@ -2,14 +2,15 @@
 
 `OpenReports.sln` opens the designer as an ASP.NET Core SPA in Visual Studio, in the same shape as the "React and ASP.NET Core" template. The reporting engine is still the Node server (`apps/server`): the host serves the designer and forwards the API to it, so the browser works against one origin.
 
-| Project | What it is |
-|---|---|
-| `apps/host/OpenReports.Host.csproj` | ASP.NET Core (.NET 10). SpaProxy in Development; static designer files and a YARP reverse proxy to the Node API after publishing. |
-| `apps/designer/OpenReports.Designer.esproj` | The designer SPA as a JavaScript project, so its source shows in Solution Explorer. Building the solution never runs npm. |
+The solution has one project, `apps/host/OpenReports.Host.csproj` (ASP.NET Core, .NET 10):
+
+- The designer (`apps/designer`, a pnpm workspace package) shows under **ClientApp** in Solution Explorer. The files are linked for editing only: building the project never runs npm and never copies them.
+- Development: SpaProxy starts the API and the designer's Vite server.
+- Published: it serves the designer from `wwwroot` and forwards the API to the Node server with YARP.
 
 ## Requirements
 
-- .NET 10 SDK, and for the IDE Visual Studio 2026 with the ASP.NET and Node.js/JavaScript workloads (the `.esproj` needs the JavaScript project system).
+- .NET 10 SDK, and for the IDE Visual Studio 2026 with the ASP.NET workload.
 - Node 22 and pnpm, and the workspace built once: `pnpm install && pnpm build:all`.
 - If your default `node` is not version 22, put a Node 22 executable in `.env` (it is gitignored):
 
@@ -38,7 +39,7 @@ pnpm build:all
 dotnet publish apps/host -c Release -o out/host
 ```
 
-Publishing runs the designer's `build` script and copies `apps/designer/dist` into `wwwroot`. The published host serves the designer, falls back to `index.html` for client routes, and forwards `/api`, `/health`, `/openapi.json`, `/embed` and `/mcp` to the Node API.
+Publishing runs the designer's `build` script (`npm run build`: tsc and Vite) and copies `apps/designer/dist` into `wwwroot`. The published host serves the designer, falls back to `index.html` for client routes, and forwards `/api`, `/health`, `/openapi.json`, `/embed` and `/mcp` to the Node API.
 
 The Node API still has to run: `pnpm start`, or the Docker image (see [Deployment](DEPLOYMENT.md)), configured as in [Configuration](CONFIGURATION.md). Point the host at it in `appsettings.json`, or with an environment variable:
 

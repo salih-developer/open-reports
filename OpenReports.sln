@@ -5,8 +5,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenReports.Host", "apps\host\OpenReports.Host.csproj", "{9CD345E4-F1F4-4FE9-970B-69AF5C5FC836}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "OpenReports.Designer", "apps\designer\OpenReports.Designer.esproj", "{406D7D7B-E3A1-4F26-8567-06E02B5B61C2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{9CD345E4-F1F4-4FE9-970B-69AF5C5FC836}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CD345E4-F1F4-4FE9-970B-69AF5C5FC836}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CD345E4-F1F4-4FE9-970B-69AF5C5FC836}.Release|Any CPU.Build.0 = Release|Any CPU
-		{406D7D7B-E3A1-4F26-8567-06E02B5B61C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{406D7D7B-E3A1-4F26-8567-06E02B5B61C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{406D7D7B-E3A1-4F26-8567-06E02B5B61C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{406D7D7B-E3A1-4F26-8567-06E02B5B61C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,6 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>OpenReports.Host</RootNamespace>
 
+    <!-- The designer SPA (a pnpm workspace package). Solution Explorer shows it under ClientApp. -->
+    <DesignerRoot>..\designer\</DesignerRoot>
+
     <!-- Development: SpaProxy runs scripts/dev-spa-proxy.mjs from the repository root, which starts the
          reporting API (:4000) and the designer's Vite server (:3000), then sends the browser to the designer. -->
     <SpaRoot>..\..\</SpaRoot>
@@ -27,11 +30,23 @@
     <PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
   </ItemGroup>
 
+  <!-- Designer source, linked for editing only: never built or published from here. -->
   <ItemGroup>
-    <!-- Publishing copies the designer's build output (apps/designer/dist) into wwwroot. -->
-    <ProjectReference Include="..\designer\OpenReports.Designer.esproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
+    <None Include="$(DesignerRoot)**" Exclude="$(DesignerRoot)node_modules\**;$(DesignerRoot)dist\**;$(DesignerRoot)bin\**;$(DesignerRoot)obj\**;$(DesignerRoot)test-results\**;$(DesignerRoot)playwright-report\**" Link="ClientApp\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
+
+  <!-- Publishing builds the designer (tsc + Vite; build the workspace packages first with pnpm build:all)
+       and puts its dist into wwwroot. -->
+  <Target Name="PublishDesigner" AfterTargets="ComputeFilesToPublish">
+    <Exec Command="npm run build" WorkingDirectory="$(DesignerRoot)" />
+    <ItemGroup>
+      <DesignerDist Include="$(DesignerRoot)dist\**" />
+      <ResolvedFileToPublish Include="@(DesignerDist->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+        <RelativePath>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
 
 </Project>

@@ -13,4 +13,3 @@ data/
 bin/
 obj/
 *.csproj.user
-*.esproj.user
