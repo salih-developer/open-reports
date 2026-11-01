@@ -49,6 +49,7 @@ namespace FastReport
           <Highlight><Condition Expression="[Cari.Borc] &lt; 0" Font="Arial, 8pt, style=Bold" ApplyFont="true" TextFill.Color="Red"/></Highlight>
         </TextObject>
         <TextObject Name="Durum" Left="189" Width="94.5" Height="13.23" Text="[IIf([Cari.Borc] &gt; [Cari.Alacak], &quot;Borçlu&quot;, &quot;Alacaklı&quot;)]" VisibleExpression="[Cari.Acik] == 1"/>
+        <TextObject Name="KodKisa" Left="283.5" Width="94.5" Height="13.23" Text="[Cari.CariKod]" WordWrap="false" Trimming="EllipsisCharacter" Font="Arial, 8pt"/>
       </DataBand>
       <GroupFooterBand Name="GroupFooter1" Width="718.2" Height="18.9">
         <TextObject Name="Sum" Left="94.5" Width="94.5" Height="13.23" Text="[BorcToplam]" Format="Number" Format.DecimalDigits="2"/>
@@ -102,6 +103,9 @@ describe("FastReport import", () => {
     ]);
     expect(find(report.sections, "Durum")).toMatchObject({ expression: '((row.Borc > row.Alacak) ? "Borçlu" : "Alacaklı")', visibleWhen: "(row.Acik == 1)" });
     expect(find(report.sections, "PageNo")).toMatchObject({ expression: '"Sayfa " + (page.number ?? "") + " / " + (page.total ?? "")' });
+    // A 9.92pt single-line box with 8pt text: the line height fits the box (FastReport's own line spacing is tighter than the PDF font's).
+    expect(find(report.sections, "KodKisa")).toMatchObject({ height: "9.92pt", style: { fontSize: 8, wrap: false, overflow: "ellipsis", lineHeight: 1.24 } });
+    expect(find(report.sections, "Tarih").style.lineHeight).toBeUndefined();
   });
 
   it("turns totals into aggregates, and conditional or computed totals into running variables", () => {

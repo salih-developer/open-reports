@@ -377,6 +377,13 @@ export function importFrx(xml: string, options: FrxImportOptions = {}): FrxImpor
     const grows = bool(node.attrs.CanGrow);
     // A fixed FastReport box clips its text; a growing one is kept at its designed height and reviewed below.
     style.overflow = node.attrs.WordWrap === "false" && node.attrs.Trimming?.startsWith("Ellipsis") ? "ellipsis" : "clip";
+    // FastReport draws a line at its font's own spacing (about 1.15 em for Arial or Tahoma), so single-line boxes are often
+    // shorter than the 1.3-1.4 em of the PDF fonts. An ellipsis box must hold one whole line, so the line height fits the box.
+    if (style.overflow === "ellipsis") {
+      const inner = pt(Math.max(0, num(node.attrs.Height))) - (padding[1] ?? 0) - (padding[3] ?? 0);
+      const size = typeof style.fontSize === "number" ? style.fontSize : 10;
+      if (inner > 0 && inner < size * 1.4) style.lineHeight = Math.floor((inner / size) * 100) / 100;
+    }
     if (grows) add("needs-review", "can grow", node, "The text can grow in FastReport; it now keeps its designed height and clips longer text. Remove the height or make the band taller where long values occur.", targetId);
     const component: Component = { id: targetId, name: node.attrs.Name, type: "text", ...geometry(node), style };
     const formatInfo = formatOf(node, targetId);

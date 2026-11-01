@@ -16,6 +16,7 @@ All notable changes. Format based on [Keep a Changelog](https://keepachangelog.c
 - `migration.sourceFormat` accepts `"frx"` and `migration.format` accepts `"fastreport"`.
 ### Fixed
 - `pnpm dev` and the MCP bundle build now work on Windows.
+- FastReport import: single-line ellipsis texts in short boxes (8 pt text in a 9.92 pt row) no longer fail the PDF render with `TEXT_EXCEEDS_HEIGHT`; their line height fits the box.
 
 ## [0.2.0] — 2026-10-04
 ### Designer

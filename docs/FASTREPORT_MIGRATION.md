@@ -47,6 +47,7 @@ Objects that run past the page edge are cut to the printable width, and bands gr
 - **Script events** (`BeforePrint`, `AfterPrint`, `AfterLayout` handlers) are unsupported. The review list shows the handler body. Rebuild the effect with variables, rules, or columns computed by the host. Handlers no object uses are listed and ignored.
 - **Script helper functions** called from text, such as `Tutar(…)` or `AyAdi(…)`, are not translated.
 - **CanGrow / CanShrink** texts and bands keep their designed height and clip longer text.
+- **Single-line texts with an ellipsis** (`WordWrap="false"`, `Trimming="EllipsisCharacter"`) that are shorter than 1.4 em get a `lineHeight` that fits the box. FastReport's line spacing is tighter than the PDF fonts', and without this the PDF render refuses the box as too short for one line.
 - Data band filters, multi-column bands, `Duplicates`, rotated text, per-group page numbering, mirror margins and diagonal lines are listed where they occur.
 
 ## Pilot: WP_NEW reports (2026-11-01)
